@@ -1,0 +1,15 @@
+spring:
+  security:
+    user:
+      name: user1
+      password: password
+  h2:
+    console:
+      enabled: true
+  datasource:
+    data-source-class-name: org.h2.Driver
+    url: jdbc:h2:mem:spring-security-sample
+    username: sa
+  sql:
+    init:
+      mode: embedded
