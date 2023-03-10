@@ -1,19 +1,28 @@
 package com.example.springsecuritysample;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
+@EnableWebSecurity
 public class SpringSecuritySampleConfig {
+    @Autowired
+    SpringSecuritySampleDetailsService springSecuritySampleDetailsService;
 
-    @Bean
+//    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests((requests) -> requests
                 .requestMatchers(AntPathRequestMatcher.antMatcher("/h2-console/**")).permitAll()
@@ -25,7 +34,7 @@ public class SpringSecuritySampleConfig {
         return http.build();
     }
 
-    @Bean
+//    @Bean
     public InMemoryUserDetailsManager userDetailsManager() {
         UserDetails userDetails = User
                 .withUsername("user2")
@@ -33,5 +42,14 @@ public class SpringSecuritySampleConfig {
                 .roles("USER")
                 .build();
         return new InMemoryUserDetailsManager(userDetails);
+    }
+
+    @Autowired
+    public void userDetailsManager(AuthenticationManagerBuilder auth) throws Exception {
+        auth.userDetailsService(springSecuritySampleDetailsService).passwordEncoder(passwordEncoder());
+    }
+
+    private BCryptPasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }
